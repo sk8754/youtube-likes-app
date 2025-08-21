@@ -1,37 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+知的好奇心からyoutubeのシステムがどのように構築されているか気になったために
 
-## Getting Started
+自分で動画配信システムを開発してみることにしました。
 
-First, run the development server:
+完全に学習目的で実践しているため
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+・UIデザインはほぼ本家を踏襲していること
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+・とりあえず動作させることを優先する
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+・大量のアクセスを想定していない（インフラ面は今回はほとんど考慮していません）
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+上記を前提としていることを念頭に入れていただければと思います。　　
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+【技術スタック】
 
-## Deploy on Vercel
+フロントエンド：Next.js(App router)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+バックエンド:  APIroute,Express
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# youtube-likes-app" 
+データベース: supabase(postgreSQL)
+
+認証: supabaseAuth又はNextAuthを使用予定
+
+状態管理ライブラリ: 今回はJyotaiを採用しています。
+
+ORM：　prismaを使用
+
+ホスティング(予定): AWSにデプロイ予定
+
+
+
+【設計方針】
+
+
+可能な限りサーバーコンポーネント内でデータフェッチをするように意識する。
+
+データの操作はPrismaを使ってシンプルにする。
+
+なるべくコンポーネントを切り分けて管理をしやすくする。
+
+
+【学んだ技術】
+
+
+・Websocket
+
+リアルタイム処理に使用（ライブコメントの送受信、サーバーからランダムにメッセージをクライアントに送信するなど）
+
+今回は少数ユーザーのみが使用することを前提としているため特にインフラの構築はしていません。
+
+もし大量のユーザーからアクセスがあり負荷分散することが必要となれば、
+
+Redisを利用して複数のサーバー同士がデータの共有ができる構成に変える必要があります。
+
+
+
+
+・hls.js
+
+ライブストリーミングを実装するために使用。
+
+今回はexpressがフロントエンドからリクエストされたm3u8ファイルが存在するかを確認して、
+
+存在すればそのm3u8ファイルをレスポンスしてhls.jsに渡し
+
+ライブストリーミングを再生するようにしました。
+
+他に有力な実装方法として
+
+WebサーバーにNginxを採用する方法もあります。（こちらのほうが簡単かもしれません）
+
+ちなみにですが、ライブストリーミングに必須であるm3u8ファイルの生成は
+
+ffmpegを使用しました。
+
+実案件の場合だと、ライブ配信を開始したら
+
+ffmpegを実行、生成される大量のファイルの管理（データベースに保存してから削除など）を行うシェルなどが
+
+必要になりそうです。
+
+
+
+・stripe決済
+
+スーパーチャット機能を実装するために使用。
+
+APIを利用することでシンプルに決済機能を実装できました。
+
+今回は簡単な決済機能を導入することが目的であったため複雑なカスタマイズはしていませんが、
+
+既存ユーザーであれば2回目以降のクレジットカード情報の入力を不要にするといったことも実現できるようです。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
